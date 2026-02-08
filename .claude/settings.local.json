@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "WebFetch(domain:orm.drizzle.team)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:trilon.io)",
+      "WebFetch(domain:developers.cloudflare.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(git init:*)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm --filter @turion/shared build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx jest:*)",
+      "Bash(npx nest build)",
+      "Bash(git add:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: initial Turion SaaS architecture — full MVP implementation\n\nMonorepo setup \\(pnpm workspaces + Turborepo\\) with:\n\n- packages/shared: Drizzle schema \\(7 tables, 3 PG enums\\), Zod DTOs,\n  Motor V1 contracts, HMAC v1 utils, message redaction, stableStringify\n- apps/api \\(NestJS\\): auth \\(register/login/me with JWT+bcrypt\\),\n  multi-tenant guards, config CRUD per stage \\(versioned, transactional\\),\n  secrets module \\(AES-256-GCM\\), simulator endpoint \\(/test\\) with\n  Motor V1 integration, HMAC signing, fallback on error/timeout,\n  execution logging, and always-200 contract\n- apps/web \\(Quasar/Vue\\): login page, dashboard stub, Pinia auth store\n- 32 unit tests passing \\(HMAC fixtures, crypto round-trip, redaction,\n  stable-stringify, contract validation\\)\n- README with full API documentation, curl examples, and env setup\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
+    ]
+  }
+}
