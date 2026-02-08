@@ -1,0 +1,4 @@
+﻿
+> @turion/web@0.0.1 lint C:\Users\User\Documents\PROJETO\Turion\apps\web
+> vue-tsc --noEmit
+

@@ -18,13 +18,31 @@ import type { ConfigJsonV1 } from '../dto/config.dto';
 export const planEnum = pgEnum('plan', ['free', 'starter', 'pro']);
 export const roleEnum = pgEnum('role', ['owner', 'admin', 'member']);
 export const stageEnum = pgEnum('stage', ['atendimento', 'cobranca', 'qualificacao']);
+export const tenantStatusEnum = pgEnum('tenant_status', ['active', 'suspended', 'cancelled']);
 
 // ── Tables ─────────────────────────────────────────────
+
+export const plans = pgTable('plans', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  slug: varchar('slug', { length: 63 }).notNull().unique(),
+  maxTenants: integer('max_tenants'),
+  maxRequestsMonth: integer('max_requests_month').notNull().default(500),
+  features: jsonb('features').default({}).$type<Record<string, unknown>>(),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const tenants = pgTable('tenants', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
   slug: varchar('slug', { length: 63 }).notNull().unique(),
   plan: planEnum('plan').default('free').notNull(),
+  planId: uuid('plan_id').references(() => plans.id),
+  status: tenantStatusEnum('status').default('active').notNull(),
+  activatedAt: timestamp('activated_at', { withTimezone: true }),
+  suspendedAt: timestamp('suspended_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -32,6 +50,7 @@ export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: text('password_hash').notNull(),
+  isSuperAdmin: boolean('is_super_admin').notNull().default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
@@ -75,9 +94,7 @@ export const tenantSecrets = pgTable('tenant_secrets', {
 
 export const auditLogs = pgTable('audit_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
-  tenantId: uuid('tenant_id')
-    .notNull()
-    .references(() => tenants.id, { onDelete: 'cascade' }),
+  tenantId: uuid('tenant_id').references(() => tenants.id, { onDelete: 'cascade' }),
   actorUserId: uuid('actor_user_id')
     .notNull()
     .references(() => users.id),
@@ -104,13 +121,33 @@ export const executionLogs = pgTable('execution_logs', {
   responseJson: jsonb('response_json'),
 });
 
+export const tenantUsage = pgTable(
+  'tenant_usage',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    tenantId: uuid('tenant_id')
+      .notNull()
+      .references(() => tenants.id, { onDelete: 'cascade' }),
+    month: varchar('month', { length: 7 }).notNull(),
+    requestCount: integer('request_count').notNull().default(0),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [uniqueIndex('uq_tenant_usage_month').on(table.tenantId, table.month)],
+);
+
 // ── Relations ──────────────────────────────────────────
-export const tenantsRelations = relations(tenants, ({ many }) => ({
+export const plansRelations = relations(plans, ({ many }) => ({
+  tenants: many(tenants),
+}));
+
+export const tenantsRelations = relations(tenants, ({ one, many }) => ({
+  planRef: one(plans, { fields: [tenants.planId], references: [plans.id] }),
   memberships: many(memberships),
   stageConfigs: many(stageConfigs),
   tenantSecrets: many(tenantSecrets),
   auditLogs: many(auditLogs),
   executionLogs: many(executionLogs),
+  tenantUsage: many(tenantUsage),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -137,4 +174,8 @@ export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
 
 export const executionLogsRelations = relations(executionLogs, ({ one }) => ({
   tenant: one(tenants, { fields: [executionLogs.tenantId], references: [tenants.id] }),
+}));
+
+export const tenantUsageRelations = relations(tenantUsage, ({ one }) => ({
+  tenant: one(tenants, { fields: [tenantUsage.tenantId], references: [tenants.id] }),
 }));

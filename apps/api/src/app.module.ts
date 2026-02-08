@@ -4,7 +4,9 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { AuditModule } from './audit/audit.module';
+import { CoreModule } from './core/core.module';
 import { SimulatorModule } from './simulator/simulator.module';
+import { UsageModule } from './usage/usage.module';
 
 @Module({
   imports: [
@@ -13,7 +15,9 @@ import { SimulatorModule } from './simulator/simulator.module';
     AuthModule,
     TenantsModule,
     AuditModule,
+    CoreModule,
     SimulatorModule,
+    UsageModule,
   ],
 })
 export class AppModule {}

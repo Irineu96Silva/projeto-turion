@@ -32,18 +32,18 @@ export class SecretsService {
     const secretEnc = encrypt(plaintext, this.masterKey);
 
     const [row] = await this.db
-      .insert(tenantSecrets)
+      .insert(tenantSecrets as any)
       .values({
         tenantId,
         secretEnc,
       })
-      .returning({ id: tenantSecrets.id, createdAt: tenantSecrets.createdAt });
+      .returning({ id: (tenantSecrets.id as any), createdAt: (tenantSecrets.createdAt as any) });
 
     // Mark previous secrets as rotated
     await this.db
-      .update(tenantSecrets)
+      .update(tenantSecrets as any)
       .set({ rotatedAt: new Date() })
-      .where(eq(tenantSecrets.tenantId, tenantId));
+      .where(eq(tenantSecrets.tenantId as any, tenantId));
 
     return { secret: plaintext, createdAt: row.createdAt };
   }
@@ -54,10 +54,10 @@ export class SecretsService {
    */
   async getDecryptedSecret(tenantId: string): Promise<string> {
     const [row] = await this.db
-      .select({ secretEnc: tenantSecrets.secretEnc })
-      .from(tenantSecrets)
-      .where(eq(tenantSecrets.tenantId, tenantId))
-      .orderBy(desc(tenantSecrets.createdAt))
+      .select({ secretEnc: (tenantSecrets.secretEnc as any) })
+      .from(tenantSecrets as any)
+      .where(eq(tenantSecrets.tenantId as any, tenantId))
+      .orderBy(desc(tenantSecrets.createdAt as any))
       .limit(1);
 
     if (!row) {

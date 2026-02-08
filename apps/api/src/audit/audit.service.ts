@@ -11,20 +11,22 @@ export class AuditService {
   ) {}
 
   async log(params: {
-    tenantId: string;
+    tenantId?: string;
     actorUserId: string;
     action: string;
     entity: string;
     entityId?: string;
-    diffJson?: unknown;
-  }): Promise<void> {
-    await this.db.insert(auditLogs).values({
-      tenantId: params.tenantId,
-      actorUserId: params.actorUserId,
-      action: params.action,
-      entity: params.entity,
-      entityId: params.entityId,
-      diffJson: params.diffJson,
+    diff?: Record<string, any>;
+  }) {
+    const { tenantId, actorUserId, action, entity, entityId, diff } = params;
+
+    await this.db.insert(auditLogs as any).values({
+      tenantId,
+      actorUserId,
+      action,
+      entity,
+      entityId,
+      diffJson: diff,
     });
   }
 }

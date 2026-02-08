@@ -30,9 +30,9 @@ export class AuthService {
   async register(dto: RegisterDto): Promise<AuthTokenResponse> {
     // Check if email already exists
     const existing = await this.db
-      .select({ id: users.id })
-      .from(users)
-      .where(eq(users.email, dto.email))
+      .select({ id: (users.id as any) })
+      .from(users as any)
+      .where(eq(users.email as any, dto.email))
       .limit(1);
 
     if (existing.length > 0) {
@@ -53,16 +53,16 @@ export class AuthService {
     // Transaction: create user + tenant + membership
     const result = await this.db.transaction(async (tx) => {
       const [user] = await tx
-        .insert(users)
+        .insert(users as any)
         .values({ email: dto.email, passwordHash })
-        .returning({ id: users.id });
+        .returning({ id: (users.id as any) });
 
       const [tenant] = await tx
-        .insert(tenants)
+        .insert(tenants as any)
         .values({ name: dto.tenantName, slug })
-        .returning({ id: tenants.id });
+        .returning({ id: (tenants.id as any) });
 
-      await tx.insert(memberships).values({
+      await tx.insert(memberships as any).values({
         tenantId: tenant.id,
         userId: user.id,
         role: 'owner',
@@ -71,14 +71,19 @@ export class AuthService {
       return { userId: user.id, email: dto.email };
     });
 
-    return this.signToken(result.userId, result.email);
+    return this.signToken(result.userId, result.email, false);
   }
 
   async login(dto: LoginDto): Promise<AuthTokenResponse> {
     const [user] = await this.db
-      .select({ id: users.id, email: users.email, passwordHash: users.passwordHash })
-      .from(users)
-      .where(eq(users.email, dto.email))
+      .select({
+        id: (users.id as any),
+        email: (users.email as any),
+        passwordHash: (users.passwordHash as any),
+        isSuperAdmin: (users.isSuperAdmin as any),
+      })
+      .from(users as any)
+      .where(eq(users.email as any, dto.email))
       .limit(1);
 
     if (!user) {
@@ -90,14 +95,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.signToken(user.id, user.email);
+    return this.signToken(user.id, user.email, user.isSuperAdmin);
   }
 
   async getMe(userId: string): Promise<AuthMeResponse> {
     const [user] = await this.db
-      .select({ id: users.id, email: users.email })
-      .from(users)
-      .where(eq(users.id, userId))
+      .select({ id: (users.id as any), email: (users.email as any), isSuperAdmin: (users.isSuperAdmin as any) })
+      .from(users as any)
+      .where(eq(users.id as any, userId))
       .limit(1);
 
     if (!user) {
@@ -106,18 +111,19 @@ export class AuthService {
 
     const membershipRows = await this.db
       .select({
-        tenantId: memberships.tenantId,
-        role: memberships.role,
-        tenantName: tenants.name,
-        tenantSlug: tenants.slug,
+        tenantId: (memberships.tenantId as any),
+        role: (memberships.role as any),
+        tenantName: (tenants.name as any),
+        tenantSlug: (tenants.slug as any),
       })
-      .from(memberships)
-      .innerJoin(tenants, eq(memberships.tenantId, tenants.id))
-      .where(eq(memberships.userId, userId));
+      .from(memberships as any)
+      .innerJoin(tenants as any, eq(memberships.tenantId as any, tenants.id as any))
+      .where(eq(memberships.userId as any, userId));
 
     return {
       id: user.id,
       email: user.email,
+      isSuperAdmin: user.isSuperAdmin,
       memberships: membershipRows.map((m) => ({
         tenantId: m.tenantId,
         tenantName: m.tenantName,
@@ -127,8 +133,8 @@ export class AuthService {
     };
   }
 
-  private signToken(userId: string, email: string): AuthTokenResponse {
-    const payload = { sub: userId, email };
+  private signToken(userId: string, email: string, isSuperAdmin: boolean): AuthTokenResponse {
+    const payload = { sub: userId, email, isSuperAdmin };
     return { access_token: this.jwtService.sign(payload) };
   }
 }

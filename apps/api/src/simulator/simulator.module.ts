@@ -5,8 +5,10 @@ import { SimulatorService } from './simulator.service';
 import { MotorClientService } from './motor-client.service';
 import { TenantsModule } from '../tenants/tenants.module';
 
+import { UsageModule } from '../usage/usage.module';
+
 @Module({
-  imports: [HttpModule, TenantsModule],
+  imports: [HttpModule, TenantsModule, UsageModule],
   controllers: [SimulatorController],
   providers: [SimulatorService, MotorClientService],
 })

@@ -1,0 +1,32 @@
+﻿
+> @turion/api@0.0.1 seed C:\Users\User\Documents\PROJETO\Turion\apps\api
+> tsx ../../packages/shared/src/scripts/seed.ts
+
+[dotenv@17.2.4] injecting env (0) from .env -- tip: ÔÜÖ´©Å  enable debug logging with { debug: true }
+[dotenv@17.2.4] injecting env (7) from ..\..\.env -- tip: ÔÜÖ´©Å  override existing env vars with { override: true }
+­ƒî▒ Seeding database...
+Seeding plans...
+ÔØî Seeding failed (log): error: relation "plans" does not exist
+    at C:\Users\User\Documents\PROJETO\Turion\node_modules\.pnpm\pg@8.18.0\node_modules\pg\lib\client.js:624:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async <anonymous> (C:\Users\User\Documents\PROJETO\Turion\node_modules\.pnpm\drizzle-orm@0.38.4_@cloudflare+workers-types@4.20260207.0_@types+pg@8.16.0_pg@8.18.0\node_modules\src\node-postgres\session.ts:104:19)
+    at async main (C:\Users\User\Documents\PROJETO\Turion\packages\shared\src\scripts\seed.ts:36:27) {
+  length: 105,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: '124',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1449',
+  routine: 'parserOpenTable'
+}
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

@@ -7,8 +7,10 @@ import { ZodValidationPipe } from '../common/pipes/zod-validation.pipe';
 import { SimulatorRequestSchema } from '@turion/shared';
 import type { SimulatorRequestDto, SimulatorResponseDto } from '@turion/shared';
 
+import { UsageLimitGuard } from '../usage/usage.guard';
+
 @Controller('tenants/:tenantId')
-@UseGuards(JwtAuthGuard, TenantMembershipGuard)
+@UseGuards(JwtAuthGuard, TenantMembershipGuard, UsageLimitGuard)
 export class SimulatorController {
   constructor(private readonly simulatorService: SimulatorService) {}
 

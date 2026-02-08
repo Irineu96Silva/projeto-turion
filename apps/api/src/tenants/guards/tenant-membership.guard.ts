@@ -28,11 +28,11 @@ export class TenantMembershipGuard implements CanActivate {
 
     const [membership] = await this.db
       .select()
-      .from(memberships)
+      .from(memberships as any)
       .where(
         and(
-          eq(memberships.userId, userId),
-          eq(memberships.tenantId, tenantId),
+          eq(memberships.userId as any, userId),
+          eq(memberships.tenantId as any, tenantId),
         ),
       )
       .limit(1);

@@ -16,6 +16,8 @@ import { SecretsService } from '../tenants/secrets/secrets.service';
 import { MotorClientService, MotorCallError } from './motor-client.service';
 import type * as schema from '@turion/shared';
 
+import { UsageService } from '../usage/usage.service';
+
 @Injectable()
 export class SimulatorService {
   private readonly logger = new Logger(SimulatorService.name);
@@ -25,6 +27,7 @@ export class SimulatorService {
     private readonly configService: ConfigService,
     private readonly secretsService: SecretsService,
     private readonly motorClient: MotorClientService,
+    private readonly usageService: UsageService,
   ) {}
 
   async runTest(
@@ -121,10 +124,17 @@ export class SimulatorService {
       this.logger.error(`Failed to log execution: ${logErr.message}`);
     });
 
+    // 7. Increment usage (fire-and-forget)
+    if (!fallback) {
+       this.usageService.incrementUsage(tenantId).catch((err) => {
+         this.logger.error(`Failed to increment usage for tenant ${tenantId}: ${err.message}`);
+       });
+    }
+
     return response;
   }
 
-  private async logExecution(params: {
+  async logExecution(params: {
     tenantId: string;
     requestId: string;
     stage: string;
@@ -135,7 +145,7 @@ export class SimulatorService {
     messageOriginal: string;
     responseJson: SimulatorResponseDto;
   }): Promise<void> {
-    await this.db.insert(executionLogs).values({
+    await this.db.insert(executionLogs as any).values({
       tenantId: params.tenantId,
       requestId: params.requestId,
       stage: params.stage as Stage,

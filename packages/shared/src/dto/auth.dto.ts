@@ -23,6 +23,7 @@ export interface AuthTokenResponse {
 export interface AuthMeResponse {
   id: string;
   email: string;
+  isSuperAdmin: boolean;
   memberships: Array<{
     tenantId: string;
     tenantName: string;

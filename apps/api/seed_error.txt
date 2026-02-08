@@ -1,0 +1,9 @@
+﻿
+> @turion/api@0.0.1 seed C:\Users\User\Documents\PROJETO\Turion\apps\api
+> tsx ../../packages/shared/src/scripts/seed.ts
+
+[dotenv@17.2.4] injecting env (0) from .env -- tip: ­ƒæÑ sync secrets across teammates & machines: https://dotenvx.com/ops
+[dotenv@17.2.4] injecting env (7) from ..\..\.env -- tip: ÔÜÖ´©Å  enable debug logging with { debug: true }
+­ƒî▒ Seeding database...
+Seeding plans...
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

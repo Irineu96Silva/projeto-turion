@@ -16,12 +16,12 @@ export class ConfigService {
   async getActiveConfig(tenantId: string, stage: Stage) {
     const [config] = await this.db
       .select()
-      .from(stageConfigs)
+      .from(stageConfigs as any)
       .where(
         and(
-          eq(stageConfigs.tenantId, tenantId),
-          eq(stageConfigs.stage, stage),
-          eq(stageConfigs.isActive, true),
+          eq(stageConfigs.tenantId as any, tenantId),
+          eq(stageConfigs.stage as any, stage),
+          eq(stageConfigs.isActive as any, true),
         ),
       )
       .limit(1);
@@ -36,12 +36,12 @@ export class ConfigService {
   async getActiveConfigOrNull(tenantId: string, stage: Stage) {
     const [config] = await this.db
       .select()
-      .from(stageConfigs)
+      .from(stageConfigs as any)
       .where(
         and(
-          eq(stageConfigs.tenantId, tenantId),
-          eq(stageConfigs.stage, stage),
-          eq(stageConfigs.isActive, true),
+          eq(stageConfigs.tenantId as any, tenantId),
+          eq(stageConfigs.stage as any, stage),
+          eq(stageConfigs.isActive as any, true),
         ),
       )
       .limit(1);
@@ -59,15 +59,15 @@ export class ConfigService {
       // Get current active config
       const [current] = await tx
         .select()
-        .from(stageConfigs)
+        .from(stageConfigs as any)
         .where(
           and(
-            eq(stageConfigs.tenantId, tenantId),
-            eq(stageConfigs.stage, stage),
-            eq(stageConfigs.isActive, true),
+            eq(stageConfigs.tenantId as any, tenantId),
+            eq(stageConfigs.stage as any, stage),
+            eq(stageConfigs.isActive as any, true),
           ),
         )
-        .orderBy(desc(stageConfigs.configVersion))
+        .orderBy(desc(stageConfigs.configVersion as any))
         .limit(1);
 
       const nextVersion = (current?.configVersion ?? 0) + 1;
@@ -75,14 +75,14 @@ export class ConfigService {
       // Deactivate current
       if (current) {
         await tx
-          .update(stageConfigs)
+          .update(stageConfigs as any)
           .set({ isActive: false })
-          .where(eq(stageConfigs.id, current.id));
+          .where(eq(stageConfigs.id as any, current.id));
       }
 
       // Insert new
-      const [newConfig] = await tx
-        .insert(stageConfigs)
+      const [newConfig] = (await tx
+        .insert(stageConfigs as any)
         .values({
           tenantId,
           stage,
@@ -90,7 +90,7 @@ export class ConfigService {
           configJson,
           isActive: true,
         })
-        .returning();
+        .returning()) as any[];
 
       // Audit log (inside transaction)
       await this.auditService.log({
@@ -99,7 +99,7 @@ export class ConfigService {
         action: 'config.update',
         entity: 'stage_configs',
         entityId: newConfig.id,
-        diffJson: {
+        diff: {
           previous: current?.configJson ?? null,
           next: configJson,
         },

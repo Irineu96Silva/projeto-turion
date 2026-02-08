@@ -3,6 +3,7 @@
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-toolbar-title>Turion</q-toolbar-title>
+        <q-btn flat label="Admin" to="/admin" v-if="authStore.isSuperAdmin" />
         <q-btn flat label="Sair" @click="logout" v-if="authStore.isAuthenticated" />
       </q-toolbar>
     </q-header>
