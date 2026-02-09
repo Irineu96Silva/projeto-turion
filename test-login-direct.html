@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turion - Login Test (Direct)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+    }
+    .card h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .card p {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+      margin-top: 10px;
+    }
+    button:hover { transform: translateY(-2px); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .alert {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .alert.success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .alert.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+    .alert.info {
+      background: #eff6ff;
+      color: #1e40af;
+      border: 1px solid #bfdbfe;
+    }
+    .token-box {
+      background: #f3f4f6;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 15px;
+      word-break: break-all;
+      font-size: 12px;
+      max-height: 100px;
+      overflow-y: auto;
+      font-family: monospace;
+    }
+    .endpoint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔐 Turion Login</h1>
+    <p>Teste direto com API em 76.13.235.26:3000</p>
+    
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="email" value="test-1770668158@turion.dev" />
+    </div>
+    
+    <div class="form-group">
+      <label>Senha</label>
+      <input type="password" id="password" value="password123" />
+    </div>
+    
+    <button onclick="testLogin()">Entrar</button>
+    <button onclick="testInvalidPassword()" style="background: #999;">Testar com Senha Errada</button>
+    
+    <div id="result"></div>
+    
+    <div class="endpoint">
+      <strong>API Endpoint:</strong><br>
+      POST http://76.13.235.26:3000/api/auth/login
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://76.13.235.26:3000/api';
+    
+    async function testLogin() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      if (!email || !password) {
+        showResult('❌ Preencha email e senha', 'error');
+        return;
+      }
+      
+      showResult('⏳ Conectando à API...', 'info');
+      
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': window.location.origin
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.access_token) {
+          // Get user info
+          const userResponse = await fetch(`${API_URL}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${data.access_token}` }
+          });
+          const userData = await userResponse.json();
+          
+          let html = `
+            ✅ <strong>LOGIN SUCESSO!</strong><br>
+            Usuário: ${userData.email}<br>
+            Tenant: ${userData.memberships[0]?.tenantName}<br>
+            <div class="token-box">
+              Token: ${data.access_token}
+            </div>
+          `;
+          showResult(html, 'success');
+          localStorage.setItem('turion_token', data.access_token);
+        } else {
+          showResult(`❌ ${data.message || 'Erro ao fazer login'}`, 'error');
+        }
+      } catch (error) {
+        showResult(`❌ Erro de conexão: ${error.message}`, 'error');
+      }
+    }
+    
+    async function testInvalidPassword() {
+      const email = document.getElementById('email').value;
+      const password = 'SENHA_ERRADA_12345';
+      
+      showResult('⏳ Testando com senha errada...', 'info');
+      
+      try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.status === 401) {
+          showResult('✅ API corretamente rejeitou senha inválida (401)', 'success');
+        } else {
+          showResult(`Resposta: ${JSON.stringify(data)}`, 'info');
+        }
+      } catch (error) {
+        showResult(`Erro: ${error.message}`, 'error');
+      }
+    }
+    
+    function showResult(html, type) {
+      const el = document.getElementById('result');
+      el.innerHTML = `<div class="alert ${type}">${html}</div>`;
+    }
+  </script>
+</body>
+</html>
