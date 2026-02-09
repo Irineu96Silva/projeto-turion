@@ -16,7 +16,7 @@ export class PlansService {
   }
 
   async create(dto: CreatePlanDto) {
-    const [plan] = await this.db.insert(plans as any).values(dto).returning();
+    const [plan] = await this.db.insert(plans as any).values(dto).returning({ id: (plans.id as any) });
     return plan;
   }
 
@@ -25,7 +25,7 @@ export class PlansService {
       .update(plans as any)
       .set(dto)
       .where(eq(plans.id as any, id))
-      .returning();
+      .returning({ id: (plans.id as any) });
 
     if (!plan) {
       throw new NotFoundException('Plan not found');

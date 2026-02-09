@@ -73,7 +73,7 @@ export class CoreTenantsService {
           planId: dto.planId,
           status: 'active',
         })
-        .returning();
+        .returning({ id: (tenants.id as any) });
 
       // 3. Add Owner
       await tx.insert(memberships as any).values({
@@ -91,7 +91,7 @@ export class CoreTenantsService {
       .update(tenants as any)
       .set({ status: dto.status })
       .where(eq(tenants.id as any, id))
-      .returning();
+      .returning({ id: (tenants.id as any), status: (tenants.status as any) });
 
     if (!tenant) {
       throw new NotFoundException('Tenant not found');

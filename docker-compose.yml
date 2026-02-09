@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: turion-api
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Database
+      DATABASE_URL: ${DATABASE_URL}
+      
+      # Auth
+      JWT_SECRET: ${JWT_SECRET}
+      
+      # Encryption (AES-256-GCM)
+      MASTER_KEY: ${MASTER_KEY}
+      
+      # Motor V1 (n8n on VPS)
+      MOTOR_URL: ${MOTOR_URL}
+      MOTOR_TIMEOUT_MS: ${MOTOR_TIMEOUT_MS:-10000}
+      
+      # Server
+      PORT: 3000
+      FRONTEND_URL: ${FRONTEND_URL}
+      
+      # Node env
+      NODE_ENV: production
+    
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    networks:
+      - turion-network
+    
+    labels:
+      com.example.description: "Turion Control Plane API"
+
+networks:
+  turion-network:
+    driver: bridge
