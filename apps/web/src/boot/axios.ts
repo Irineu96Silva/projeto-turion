@@ -4,9 +4,9 @@ import axios from 'axios';
 // In development (Vite): use relative path (proxied by vite.config.ts)
 // In production (Cloudflare Pages): use full VPS URL
 const isProduction = import.meta.env.PROD;
-const apiBaseUrl = isProduction 
-  ? import.meta.env.VITE_API_URL || 'http://76.13.235.26:3000/api'
-  : '/api';
+const apiBaseUrl = import.meta.env.VITE_API_URL || (isProduction 
+  ? 'http://76.13.235.26:3000/api' 
+  : '/api');
 
 console.log(`[Turion] API Base URL: ${apiBaseUrl} (Production: ${isProduction})`);
 
