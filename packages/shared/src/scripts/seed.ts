@@ -97,8 +97,27 @@ const main = async () => {
         console.log(`Promoted ${adminEmail} to super admin`);
       }
     }
+      }
+    }
 
-    console.log('✅ Seeding complete.');
+    // 3. Seed Test User
+    console.log('Seeding test user...');
+    const testEmail = 'test-1770668158@turion.dev';
+    
+    // Check if user exists using raw SQL or query builder to be safe
+    const existingTestUser = await db.select().from(users).where(eq(users.email, testEmail)).limit(1);
+
+    if (existingTestUser.length === 0) {
+      const passwordHash = await hash('password', 10);
+      await db.insert(users).values({
+        email: testEmail,
+        passwordHash,
+        isSuperAdmin: false,
+      });
+      console.log(`Created test user: ${testEmail} (password: password)`);
+    } else {
+      console.log(`Test user already exists: ${testEmail}`);
+    }
   } catch (error) {
     console.log('❌ Seeding failed (log):', error);
     console.error('❌ Seeding failed (error):', error);
