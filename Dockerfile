@@ -14,6 +14,9 @@ COPY packages/shared ./packages/shared
 # Instalar dependências
 RUN pnpm install --frozen-lockfile
 
+# Buildar shared primeiro
+RUN pnpm --filter @turion/shared build
+
 # Buildar a API
 RUN pnpm --filter @turion/api build
 
