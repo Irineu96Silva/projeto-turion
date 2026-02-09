@@ -5,7 +5,7 @@ import axios from 'axios';
 // In production (Cloudflare Pages): use full VPS URL
 const isProduction = import.meta.env.PROD;
 const apiBaseUrl = isProduction 
-  ? import.meta.env.VITE_API_URL || 'http://54.232.134.140:3000/api'
+  ? import.meta.env.VITE_API_URL || 'http://76.13.235.26:3000/api'
   : '/api';
 
 console.log(`[Turion] API Base URL: ${apiBaseUrl} (Production: ${isProduction})`);
