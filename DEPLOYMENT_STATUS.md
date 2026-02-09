@@ -10,9 +10,9 @@
 | Component | Status | URL | Notes |
 |-----------|--------|-----|-------|
 | Frontend (Web) | ✅ Running | https://master.turion-web.pages.dev | Cloudflare Pages |
-| API (NestJS) | ✅ Running | http://54.232.134.140:3000 | Docker Container |
+| API (NestJS) | ✅ Running | http://76.13.235.26:3000 | Docker Container |
 | Database | ✅ Connected | Neon PostgreSQL | neondb (prod) |
-| Motor V1 (n8n) | ⏳ Pending | http://172.17.0.1:5678 | Webhook ready |
+| Motor V1 (n8n) | ⏳ Pending | http://76.13.235.26:5678 | Webhook ready |
 
 ---
 
@@ -39,12 +39,12 @@ docker compose -f /tmp/turion-api/docker-compose.yml logs -f api
 
 ```bash
 # 1. Plans listing
-curl http://54.232.134.140:3000/api/core/plans
+curl http://76.13.235.26:3000/api/core/plans
 
 # Response: 200 OK - Returns Free, Pro, Enterprise plans
 
 # 2. Health check
-curl -I http://54.232.134.140:3000/api
+curl -I http://76.13.235.26:3000/api
 
 # Response: 404 (expected - no root route)
 ```
@@ -73,7 +73,7 @@ curl -I http://54.232.134.140:3000/api
 DATABASE_URL=postgresql://neondb_owner:***@ep-broad-base-ai7ch2x4-pooler.c-4.us-east-1.aws.neon.tech/neondb
 JWT_SECRET=4O4QYlo1pLHHcQvKlbutV/xv80y+5Uq0FXm9aJPv3VWEUOBFjWOwRnYzXibAWXLW
 MASTER_KEY=6f4b8240fc81dee97ba6a3b840265350bd8d36e705a1d69f0fd0c9fa7ea76476
-MOTOR_URL=http://172.17.0.1:5678/webhook/shpKwVVC9j0s8HAi/webhook/engine/run
+MOTOR_URL=http://76.13.235.26:5678/webhook/shpKwVVC9j0s8HAi/webhook/engine/run
 FRONTEND_URL=https://master.turion-web.pages.dev
 PORT=3000
 NODE_ENV=production
@@ -152,4 +152,4 @@ lsof -i :3000
 **Last Updated**: 2026-02-09 19:49 UTC  
 **Deployed By**: Claw (Automation Agent)  
 **Frontend**: https://master.turion-web.pages.dev  
-**API**: http://54.232.134.140:3000/api
+**API**: http://76.13.235.26:3000/api
